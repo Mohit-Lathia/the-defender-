@@ -54,7 +54,7 @@ current_level.generate_waypoints()
 enemy_image = pygame.image.load("assets/enemys/enemy_1.png").convert_alpha()
 enemy_group = pygame.sprite.Group() #creates a group 
 enemy_group = pygame.sprite.Group()
-enemy = Enemy(current_level.waypoints, enemy_image)
+enemy = Enemy(current_level.ordered_waypoints, enemy_image)
 enemy_group.add(enemy)
 
 #game loop
