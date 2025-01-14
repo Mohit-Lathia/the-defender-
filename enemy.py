@@ -8,6 +8,7 @@ class Enemy(pygame.sprite.Sprite):
     def __init__(self, waypoints, image):
         pygame.sprite.Sprite.__init__(self)
         self.waypoints = waypoints #uses the wapoints list 
+        print(waypoints)
         self.pos = Vector2(self.waypoints[0]) #changing the start point of enemy
         self.target_waypoint = 1 #seting a taget wapoint
         self.speed = 2 #set speed of enemy
@@ -19,7 +20,7 @@ class Enemy(pygame.sprite.Sprite):
 
     def update(self):
         self.move()
-        self.rotation ()
+        self.rotation()
 
     def move(self):
         self.target = Vector2(self.waypoints[self.target_waypoint])#seting target waypoint
