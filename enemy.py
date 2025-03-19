@@ -1,47 +1,70 @@
-# this section was refenced form coding with russ (not all)
+# This section was referenced form Coding with Russ
 import pygame
-from pygame.math import Vector2
 import math
+import constants as con
+from enemy_data import *
+from pygame.math import Vector2
+
 
 class Enemy(pygame.sprite.Sprite):
 
-    def __init__(self, waypoints, image):
+    def __init__(self, enemy_type, waypoints, images):
+
+        # Initializes and enemy sprite with aritabuts based on it type
         pygame.sprite.Sprite.__init__(self)
-        self.waypoints = waypoints #uses the wapoints list 
-        self.pos = Vector2(self.waypoints[0]) #changing the start point of enemy
-        self.target_waypoint = 1 #seting a taget wapoint
-        self.speed = 2 #set speed of enemy
-        self.angle = 0 #sets angale of image
-        self.original_image = image #stores original image
-        self.image = pygame.transform.rotate(self.original_image, self.angle) #updates the origianl image  
+        self.waypoints = waypoints 
+        self.pos = Vector2(self.waypoints[0]) # Initial position at the first waypoint
+        self.target_waypoint = 1 # Index of the next waypoints
+
+        self.health = ENEMY_DATA.get(enemy_type)["health"]
+        self.speed = ENEMY_DATA.get(enemy_type)["speed"]
+
+        self.angle = 0 #sets angle of image
+        self.original_image = images.get(enemy_type)
+        
+        self.image = pygame.transform.rotate(self.original_image, self.angle)
         self.rect = self.image.get_rect()
         self.rect.center = self.pos
 
-    def update(self):
-        self.move()
-        self.rotation ()
+    def update(self, level):
 
-    def move(self):
-        self.target = Vector2(self.waypoints[self.target_waypoint])#seting target waypoint
-        direction = self.target - self.pos #calculates the distance of vector
+        # Updates the enemy's postion, roation, and if alive each frame
+        self.move(level)
+        self.rotation()
+        self.is_alive(level)
 
-        if direction.length() < 2: #checks if the enemy is close to a target waypoint
+
+    def move(self, level):
+
+        # Moves the enemy towards the next waypoint
+        self.target = Vector2(self.waypoints[self.target_waypoint])
+        direction = self.target - self.pos 
+
+        if direction.length() < 2: # Close enough to the waypoint
             self.target_waypoint += 1
-
-            if self.target_waypoint >= len(self.waypoints): #if all waypoints are meet, kill sprit
+            if self.target_waypoint >= len(self.waypoints): # If all waypoints are meet, kill sprit
                 self.kill()
-                return #kills the sprite if reach end
+                level.health -= 1
+                level.missed_enemies += 1
         
-        if direction.length() > 0: #normalize and move the enemys is dirction of vector is not 0 
+        if direction.length() > 0:
 
-            direction = direction.normalize() #normalises the direction and moves the enemy
-            self.pos += direction * self.speed
+            direction = direction.normalize()
+            self.pos += direction * (self.speed * level.game_speed)
         
-        self.rect.center = self.pos #updates the sprite's position
+        self.rect.center = self.pos
 
     def rotation(self):
-        direction = self.target - self.pos #clalulate distnace to next waypoint
-        angle = math.degrees(math.atan2(-direction.y, direction.x))  #use distance to calculate the angle
-        self.image = pygame.transform.rotate(self.original_image, angle) #rotates the image
-        self.rect = self.image.get_rect(center=self.rect.center) #updates the rectangel so the sprites is centered
+
+        # Rotates the enemy sprite to the face the direction of the movement
+        direction = self.target - self.pos
+        angle = math.degrees(math.atan2(-direction.y, direction.x))
+        self.image = pygame.transform.rotate(self.original_image, angle)
+        self.rect = self.image.get_rect(center=self.rect.center)
         self.rect.center = self.pos
+
+    def is_alive(self, level):
+        if self.health <= 0:
+            level.killed_enemies += 1
+            level.cash += con.KILL_POINTS
+            self.kill()
