@@ -1,5 +1,7 @@
 # Some part of the code was inspired by code with russ
 import pygame
+import os
+import sys
 import constants as con
 from enemy import *
 from tower import *
@@ -7,6 +9,13 @@ from map import *
 from buttons import *
 from settings import *
 
+
+if getattr(sys, 'frozen', False):
+    base_path = sys._MEIPASS  
+else:
+    base_path = os.path.abspath(".")
+
+assets_path = os.path.join(base_path, "assets")
 # Initialize Pygame
 pygame.init()
 
